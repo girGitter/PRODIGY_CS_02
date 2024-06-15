@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 
@@ -54,7 +54,7 @@ def save_file():
 
 def display_image(canvas, img):
     canvas.delete("all")
-    img = img.resize((300, 300))
+    img = img.resize((300, 300), Image.LANCZOS)
     tk_img = ImageTk.PhotoImage(img)
     canvas.image = tk_img
     canvas.create_image(0, 0, anchor=tk.NW, image=tk_img)
@@ -94,8 +94,8 @@ def decrypt_action():
 def refresh_images():
     input_canvas.delete("all")
     output_canvas.delete("all")
-    input_canvas.create_text(150, 150, text="Before", font=("Helvetica", 16), fill="white")
-    output_canvas.create_text(150, 150, text="After", font=("Helvetica", 16), fill="white")
+    input_canvas.create_text(150, 150, text="Before", font=("Consolas", 16), fill="#FFFFFF")  # White color
+    output_canvas.create_text(150, 150, text="After", font=("Consolas", 16), fill="#FFFFFF")  # White color
 
 def exit_application():
     if messagebox.askokcancel("Exit", "Are you sure you want to exit?"):
@@ -105,36 +105,52 @@ def create_gui():
     global root
     root = tk.Tk()
     root.title("Image Encrypting Tool")
+    root.geometry("800x600")
 
-    title_label = tk.Label(root, text="Image Encrypting Tool", font=("Helvetica", 16, "bold"))
+    # Load the background image
+    bg_image = Image.open("terminal_background.jpg")
+    bg_image = bg_image.resize((800, 600), Image.LANCZOS)  # Resize using LANCZOS filter
+    bg_photo = ImageTk.PhotoImage(bg_image)
+    
+    # Create a background label
+    bg_label = tk.Label(root, image=bg_photo)
+    bg_label.place(relwidth=1, relheight=1)
+    
+    # Create a frame to hold all widgets and make it transparent
+    main_frame = tk.Frame(root, bg='#008000', bd=0)  # Neonish green background
+    main_frame.place(relwidth=0.9, relheight=0.9, relx=0.05, rely=0.05)
+    main_frame.tkraise(bg_label)
+
+    title_label = tk.Label(main_frame, text="Image Encrypting Tool", font=("Consolas", 18, "bold"), bg='#008000', fg='#FFFFFF')  # White text
     title_label.pack(pady=20)
 
-    frame = tk.Frame(root)
-    frame.pack(pady=10)
+    button_frame = tk.Frame(main_frame, bg='#008000')
+    button_frame.pack(pady=10)
 
-    encrypt_button = tk.Button(frame, text="Encrypt Image", command=encrypt_action, width=20, height=2)
-    encrypt_button.grid(row=0, column=0, padx=10, pady=10)
+    button_style = {'bg': '#FFFFFF', 'fg': '#000000', 'font': ("Consolas", 12, "bold"), 'relief': 'raised', 'bd': 3}  # White button with black text
 
-    decrypt_button = tk.Button(frame, text="Decrypt Image", command=decrypt_action, width=20, height=2)
-    decrypt_button.grid(row=0, column=1, padx=10, pady=10)
+    encrypt_button = tk.Button(button_frame, text="Encrypt Image", command=encrypt_action, width=20, height=2, **button_style)
+    encrypt_button.grid(row=0, column=0, padx=20, pady=10)
 
-    refresh_button = tk.Button(frame, text="Refresh Images", command=refresh_images, width=20, height=2)
-    refresh_button.grid(row=1, column=0, padx=10, pady=10)
+    decrypt_button = tk.Button(button_frame, text="Decrypt Image", command=decrypt_action, width=20, height=2, **button_style)
+    decrypt_button.grid(row=0, column=1, padx=20, pady=10)
 
-    exit_button = tk.Button(frame, text="Exit", command=exit_application, width=20, height=2)
-    exit_button.grid(row=1, column=1, padx=10, pady=10)
+    refresh_button = tk.Button(button_frame, text="Refresh Images", command=refresh_images, width=20, height=2, **button_style)
+    refresh_button.grid(row=1, column=0, padx=20, pady=10)
+
+    exit_button = tk.Button(button_frame, text="Exit", command=exit_application, width=20, height=2, **button_style)
+    exit_button.grid(row=1, column=1, padx=20, pady=10)
 
     global input_canvas, output_canvas
-    input_canvas = tk.Canvas(root, width=300, height=300, bg='gray')
+    input_canvas = tk.Canvas(main_frame, width=300, height=300, bg='#000000', bd=2, relief='sunken')  # Black canvas
     input_canvas.pack(side=tk.LEFT, padx=10, pady=10)
-    input_canvas.create_text(150, 150, text="Before", font=("Helvetica", 16), fill="white")
+    input_canvas.create_text(150, 150, text="Before", font=("Consolas", 16), fill="#FFFFFF")  # White text
 
-    output_canvas = tk.Canvas(root, width=300, height=300, bg='gray')
+    output_canvas = tk.Canvas(main_frame, width=300, height=300, bg='#000000', bd=2, relief='sunken')  # Black canvas
     output_canvas.pack(side=tk.RIGHT, padx=10, pady=10)
-    output_canvas.create_text(150, 150, text="After", font=("Helvetica", 16), fill="white")
+    output_canvas.create_text(150, 150, text="After", font=("Consolas", 16), fill="#FFFFFF")  # White text
 
     root.mainloop()
 
 if __name__ == "__main__":
     create_gui()
-
